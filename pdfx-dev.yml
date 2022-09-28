@@ -1,7 +1,7 @@
 # Common configuration shared between all applications
 configserver:
   name: Docker JHipster Registry
-  status: Connected to the git repository in Amrit's github repo
+  status: Connected to the git repository in Amrit's github repo-dev profile
 
 jhipster:
   security:
