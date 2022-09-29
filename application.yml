@@ -1,15 +1,176 @@
-# Common configuration shared between all applications
-configserver:
-  name: Docker JHipster Registry
-  status: Connected to the git repository in Amrit's github repo - local
-
-jhipster:
-  security:
-    authentication:
-      jwt:
-        secret: my-secret-key-which-should-be-changed-in-production-and-be-base64-encoded
-
 eureka:
   client:
-    service-url:
-      defaultZone: http://admin:${jhipster.registry.password}@localhost:8761/eureka1/
+    enabled: true
+    healthcheck:
+      enabled: true
+    fetch-registry: true
+    register-with-eureka: true
+    instance-info-replication-interval-seconds: 10
+    registry-fetch-interval-seconds: 10
+  instance:
+    appname: pdfx
+    instanceId: pdfx:${spring.application.instance-id:${random.value}}
+    lease-renewal-interval-in-seconds: 5
+    lease-expiration-duration-in-seconds: 10
+    status-page-url-path: ${management.endpoints.web.base-path}/info
+    health-check-url-path: ${management.endpoints.web.base-path}/health
+    metadata-map:
+      zone: primary # This is needed for the load balancer
+      profile: ${spring.profiles.active}
+      version: #project.version#
+      git-version: ${git.commit.id.describe:}
+      git-commit: ${git.commit.id.abbrev:}
+      git-branch: ${git.branch:}
+ribbon:
+  eureka:
+    enabled: true
+feign:
+  hystrix:
+    enabled: true
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          strategy: SEMAPHORE
+  shareSecurityContext: true
+
+management:
+  endpoints:
+    web:
+      base-path: /management
+      exposure:
+        include: ['configprops', 'env', 'health', 'info', 'jhimetrics', 'logfile', 'loggers', 'prometheus', 'threaddump']
+  endpoint:
+    health:
+      show-details: when_authorized
+      roles: 'ROLE_ADMIN'
+    jhimetrics:
+      enabled: true
+  info:
+    git:
+      mode: full
+  health:
+    mail:
+      enabled: false # When using the MailService, configure an SMTP server and set this to true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+        step: 60
+    enable:
+      http: true
+      jvm: true
+      logback: true
+      process: true
+      system: true
+    distribution:
+      percentiles-histogram:
+        all: true
+      percentiles:
+        all: 0, 0.5, 0.75, 0.95, 0.99, 1.0
+    tags:
+      application: ${spring.application.name}
+    web:
+      server:
+        request:
+          autotime:
+            enabled: true
+
+spring:
+  application:
+    name: pdfx
+  jmx:
+    enabled: false
+  data:
+    jpa:
+      repositories:
+        bootstrap-mode: deferred
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate.jdbc.time_zone: UTC
+      hibernate.id.new_generator_mappings: true
+      hibernate.connection.provider_disables_autocommit: true
+      hibernate.cache.use_second_level_cache: false
+      hibernate.cache.use_query_cache: false
+      hibernate.generate_statistics: false
+      hibernate.jdbc.batch_size: 25
+      hibernate.order_inserts: true
+      hibernate.order_updates: true
+      hibernate.jdbc.fetch_size: 150
+      hibernate.criteria.literal_handling_mode: BIND
+      hibernate.query.fail_on_pagination_over_collection_fetch: true
+      hibernate.query.in_clause_parameter_padding: true
+    hibernate:
+      ddl-auto: none
+      naming:
+        physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+        implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+  messages:
+    basename: i18n/messages
+  main:
+    allow-bean-definition-overriding: true
+  task:
+    execution:
+      thread-name-prefix: pdfx-task-
+      pool:
+        core-size: 2
+        max-size: 50
+        queue-capacity: 10000
+    scheduling:
+      thread-name-prefix: pdfx-scheduling-
+      pool:
+        size: 2
+  thymeleaf:
+    mode: HTML
+  output:
+    ansi:
+      console-available: true
+
+server:
+  servlet:
+    session:
+      cookie:
+        http-only: true
+
+info:
+  display-ribbon-on-profiles: 'dev'
+
+jhipster:
+  clientApp:
+    name: 'pdfxApp'
+ 
+  mail:
+    from: pdfx@localhost
+  swagger:
+    default-include-pattern: /api/.*
+    title: pdfx API
+    description: pdfx API documentation
+    version: 0.0.1
+    terms-of-service-url:
+    contact-name:
+    contact-url:
+    contact-email:
+    license: unlicensed
+    license-url:
+
+
+NOTIF_PRASSIGN_MSG: "You have been assigned to project: <pname>."
+NOTIF_REQPROJ_MSG: Requested to create a new project, <pname>, by <user>.
+NOTIF_PROJDEF_MSG: Assigned to a new project, <pname>, as a Deid Lead.  Please complete the project’s definition and assign team members.
+NOTIF_STHIGH: High
+NOTIF_STCOMPLETED: Completed
+NOTIF_STWARNING: Warning
+NOTIF_STINFO: Info
+NOTIF_ANONYMIZE_REQ: Requested to anonymize project, <pname>, by <user>. 
+NOTIF_ANONYMIZE_APPROVE: Anonymization request for project, <pname>, has been APPROVED.
+NOTIF_ANONYMIZE_REJECT: "Anonymization request for project, <pname>, has been REJECTED.  Reason:  <reject-reason.>."
+NOTIF_PA_RA: <user>, Assigned to project, <pname>, as a <role> role.
+NOTIF_PROJ_ACCESS_REMOVE: Your access has been removed for <pname> project.
+NOTIF_FILE_UPLOAD: Your requested <filename> has been uploaded successfully for <pname> project .
+NOTIF_FILE_UPLOAD_FAIL: Your requested <filename> failed to upload for <pname> project .
+NOTIF_PROJ_STATUS: Your requested project, <pname>, has been <status>.
+chunkSize:
+  maximum: 400
+ENC_DEC_ON: true
